@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h2 mb-1">Dashboard</h1>
+    <p class="text-body-secondary mb-0">Your betting activity will appear here.</p>
+</div>
+
+<div class="row g-3">
+    {% for label in ["Total Fights", "Active Fights", "Total Bettors", "Total Bets", "Total Bet Amount", "Outstanding Credits"] %}
+    <div class="col-12 col-sm-6 col-xl-4">
+        <section class="card stat-card h-100 shadow-sm">
+            <div class="card-body">
+                <p class="text-body-secondary mb-2">{{ label }}</p>
+                <p class="display-6 mb-0">0</p>
+            </div>
+        </section>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
