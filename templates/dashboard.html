@@ -11,9 +11,9 @@
         ("Total Fights", stats.total_fights),
         ("Active Fights", stats.active_fights),
         ("Total Bettors", stats.total_bettors),
-        ("Total Bets", 0),
-        ("Total Bet Amount", "₱0.00"),
-        ("Outstanding Credits", "₱0.00")
+        ("Total Bets", stats.total_bets),
+        ("Total Bet Amount", "₱{:,.2f}".format(stats.total_bet_amount)),
+        ("Outstanding Credits", "₱{:,.2f}".format(stats.outstanding_credits))
     ] %}
     {% for label, value in cards %}
     <div class="col-12 col-sm-6 col-xl-4">

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Bet' if bet else 'Create Bet' }} | Betting Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h2 mb-1">{{ 'Edit Bet' if bet else 'Create Bet' }}</h1>
+    <p class="text-body-secondary mb-0">Choose an open fight, bettor, side, and payment details.</p>
+</div>
+
+{% if not fights or not bettors %}
+<div class="alert alert-warning">Create at least one open fight and one bettor before adding a bet.</div>
+{% endif %}
+
+<form method="post" class="card shadow-sm border-0 p-3 p-md-4 form-card">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label" for="fight_id">Fight</label>
+            <select class="form-select" id="fight_id" name="fight_id" required {% if not fights %}disabled{% endif %}>
+                <option value="">Choose a fight</option>
+                {% for fight in fights %}
+                {% set selected = request.form.get('fight_id', bet.fight_id if bet else 0)|int == fight.id %}
+                <option value="{{ fight.id }}" {{ 'selected' if selected else '' }}>{{ fight.fighter_a }} vs {{ fight.fighter_b }} — {{ fight.fight_date.strftime('%b %d, %Y') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="bettor_id">Bettor</label>
+            <select class="form-select" id="bettor_id" name="bettor_id" required {% if not bettors %}disabled{% endif %}>
+                <option value="">Choose a bettor</option>
+                {% for bettor_option in bettors %}
+                {% set selected = request.form.get('bettor_id', bet.bettor_id if bet else 0)|int == bettor_option.id %}
+                <option value="{{ bettor_option.id }}" {{ 'selected' if selected else '' }}>{{ bettor_option.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="fighter_side">Fighter Side</label>
+            {% set side = request.form.get('fighter_side', bet.fighter_side if bet else '') %}
+            <select class="form-select" id="fighter_side" name="fighter_side" required>
+                <option value="">Choose a side</option>
+                <option value="A" {{ 'selected' if side == 'A' else '' }}>Fighter A</option>
+                <option value="B" {{ 'selected' if side == 'B' else '' }}>Fighter B</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="amount">Bet Amount (₱)</label>
+            <input class="form-control" id="amount" name="amount" type="number" min="0.01" step="0.01" value="{{ request.form.get('amount', bet.amount if bet else '') }}" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="commission_percent">Commission (%)</label>
+            <input class="form-control" id="commission_percent" name="commission_percent" type="number" min="0" max="100" step="0.01" value="{{ request.form.get('commission_percent', bet.commission_percent if bet else '0') }}" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="payment_type">Payment Type</label>
+            {% set payment = request.form.get('payment_type', bet.payment_type if bet else '') %}
+            <select class="form-select" id="payment_type" name="payment_type" required>
+                <option value="">Choose payment type</option>
+                <option value="cash" {{ 'selected' if payment == 'cash' else '' }}>Cash</option>
+                <option value="credit" {{ 'selected' if payment == 'credit' else '' }}>Credit</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="notes">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ request.form.get('notes', bet.notes if bet and bet.notes else '') }}</textarea>
+        </div>
+    </div>
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary" type="submit" {% if not fights or not bettors %}disabled{% endif %}>{{ 'Save Changes' if bet else 'Create Bet' }}</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('bets.list_bets') }}">Cancel</a>
+    </div>
+</form>
+{% endblock %}
