@@ -54,13 +54,10 @@ def edit_bet(bet_id):
 @bets_bp.post("/<int:bet_id>/delete")
 def delete_bet(bet_id):
     bet = db.get_or_404(Bet, bet_id)
-    if bet.fight.status != "open":
-        flash("Only bets on open fights can be deleted.", "warning")
-    else:
-        db.session.execute(delete(LedgerEntry).where(LedgerEntry.bet_id == bet.id))
-        db.session.delete(bet)
-        db.session.commit()
-        flash("Bet deleted.", "success")
+    db.session.execute(delete(LedgerEntry).where(LedgerEntry.bet_id == bet.id))
+    db.session.delete(bet)
+    db.session.commit()
+    flash("Bet and its related ledger entries were deleted.", "success")
     return redirect(url_for("bets.list_bets"))
 
 

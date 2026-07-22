@@ -53,12 +53,15 @@ def detail_bettor(bettor_id):
 @bettors_bp.post("/<int:bettor_id>/delete")
 def delete_bettor(bettor_id):
     bettor = db.get_or_404(Bettor, bettor_id)
-    if bettor.bets or bettor.payments or bettor.ledger_entries:
-        flash("A bettor with bet, payment, or ledger history cannot be deleted.", "warning")
-        return redirect(url_for("bettors.detail_bettor", bettor_id=bettor.id))
+    for entry in list(bettor.ledger_entries):
+        db.session.delete(entry)
+    for payment in list(bettor.payments):
+        db.session.delete(payment)
+    for bet in list(bettor.bets):
+        db.session.delete(bet)
     db.session.delete(bettor)
     db.session.commit()
-    flash("Bettor deleted.", "success")
+    flash("Bettor and all related bets, payments, and ledger entries were deleted.", "success")
     return redirect(url_for("bettors.list_bettors"))
 
 

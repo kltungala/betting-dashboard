@@ -41,11 +41,9 @@
                     <td>{{ fight.winner_side or '—' }}</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('fights.detail_fight', fight_id=fight.id) }}">View</a>
-                        {% if fight.status == 'open' and not fight.bets %}
-                        <form method="post" action="{{ url_for('fights.delete_fight', fight_id=fight.id) }}" class="d-inline" onsubmit="return confirm('Delete this fight permanently?')">
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        <form method="post" action="{{ url_for('fights.delete_fight', fight_id=fight.id) }}" class="d-inline" onsubmit="return confirm('Permanently delete this fight and ALL of its bets and ledger records? This cannot be undone.')">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete All</button>
                         </form>
-                        {% endif %}
                     </td>
                 </tr>
                 {% else %}

@@ -30,11 +30,9 @@
                     <td>₱{{ '{:,.2f}'.format(bettor.balance) }}</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('bettors.edit_bettor', bettor_id=bettor.id) }}">Edit</a>
-                        {% if not bettor.bets and not bettor.payments and not bettor.ledger_entries %}
-                        <form method="post" action="{{ url_for('bettors.delete_bettor', bettor_id=bettor.id) }}" class="d-inline" onsubmit="return confirm('Delete this bettor permanently?')">
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        <form method="post" action="{{ url_for('bettors.delete_bettor', bettor_id=bettor.id) }}" class="d-inline" onsubmit="return confirm('Permanently delete this bettor and ALL related bets, payments, and ledger records? This cannot be undone.')">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete All</button>
                         </form>
-                        {% endif %}
                     </td>
                 </tr>
                 {% else %}

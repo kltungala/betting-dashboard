@@ -63,16 +63,14 @@ def close_fight(fight_id):
 @fights_bp.post("/<int:fight_id>/delete")
 def delete_fight(fight_id):
     fight = db.get_or_404(Fight, fight_id)
-    if fight.bets:
-        flash("A fight with bets cannot be deleted. Keep its record for settlement history.", "warning")
-    elif fight.status != "open":
-        flash("Only open fights without bets can be deleted.", "warning")
-    else:
-        db.session.delete(fight)
-        db.session.commit()
-        flash("Fight deleted.", "success")
-        return redirect(url_for("fights.list_fights"))
-    return redirect(url_for("fights.detail_fight", fight_id=fight.id))
+    for bet in list(fight.bets):
+        for entry in list(bet.ledger_entries):
+            db.session.delete(entry)
+        db.session.delete(bet)
+    db.session.delete(fight)
+    db.session.commit()
+    flash("Fight and all of its related bets and ledger entries were deleted.", "success")
+    return redirect(url_for("fights.list_fights"))
 
 
 @fights_bp.post("/<int:fight_id>/winner")
