@@ -45,3 +45,15 @@ def record_payout_entry(bet):
             description=f"Payout for {bet.fight.fighter_a} vs {bet.fight.fighter_b}",
         )
     )
+
+
+def record_loss_entry(bet):
+    db.session.add(
+        LedgerEntry(
+            bettor=bet.bettor,
+            bet=bet,
+            entry_type="loss",
+            amount=bet.amount,
+            description=f"Loss on {bet.fight.fighter_a} vs {bet.fight.fighter_b}",
+        )
+    )

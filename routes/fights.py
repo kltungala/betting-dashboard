@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from extensions import db
 from models import Bet, Fight
-from services.ledger import record_payout_entry
+from services.ledger import record_loss_entry, record_payout_entry
 
 
 fights_bp = Blueprint("fights", __name__, url_prefix="/fights")
@@ -131,6 +131,7 @@ def _settle_fight(fight, winner_side, winning_bets):
             bet.commission_amount = Decimal("0.00")
             bet.net_profit = -bet.amount
             bet.total_returned = Decimal("0.00")
+            record_loss_entry(bet)
             continue
 
         gross = (bet.amount / winning_pool * losing_pool).quantize(MONEY, rounding=ROUND_HALF_UP)

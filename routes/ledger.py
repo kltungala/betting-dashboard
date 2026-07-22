@@ -4,7 +4,8 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from sqlalchemy import select
 
 from extensions import db
-from models import Bettor, LedgerEntry
+from models import Bet, Bettor, LedgerEntry
+from services.ledger import record_loss_entry
 
 
 ledger_bp = Blueprint("ledger", __name__, url_prefix="/ledger")
@@ -12,6 +13,16 @@ ledger_bp = Blueprint("ledger", __name__, url_prefix="/ledger")
 
 @ledger_bp.get("/")
 def list_ledger():
+    missing_losses = []
+    lost_bets = db.session.scalars(select(Bet).where(Bet.status == "lost")).all()
+    for bet in lost_bets:
+        has_loss_entry = any(entry.entry_type == "loss" for entry in bet.ledger_entries)
+        if not has_loss_entry:
+            record_loss_entry(bet)
+            missing_losses.append(bet)
+    if missing_losses:
+        db.session.commit()
+
     entries = db.session.scalars(
         select(LedgerEntry).order_by(LedgerEntry.created_at.desc(), LedgerEntry.id.desc())
     ).all()

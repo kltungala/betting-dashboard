@@ -1,6 +1,7 @@
 from io import BytesIO
+from decimal import Decimal
 
-from flask import Blueprint, render_template, send_file
+from flask import Blueprint, render_template, request, send_file
 from openpyxl import Workbook
 from sqlalchemy import func, select
 
@@ -15,6 +16,24 @@ reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 def index():
     fights = db.session.scalars(select(Fight).order_by(Fight.fight_date.desc())).all()
     bettors = db.session.scalars(select(Bettor).order_by(Bettor.name)).all()
+    selected_fight_ids = {
+        int(fight_id) for fight_id in request.args.getlist("fight_id") if fight_id.isdigit()
+    }
+    if not selected_fight_ids and request.args.get("filters_submitted") != "1":
+        selected_fight_ids = {fight.id for fight in fights if fight.status == "settled"}
+
+    player_totals = []
+    for bettor in bettors:
+        total = sum(
+            (
+                bet.net_profit
+                for bet in bettor.bets
+                if bet.fight_id in selected_fight_ids and bet.status in {"won", "lost"}
+            ),
+            Decimal("0.00"),
+        )
+        player_totals.append({"bettor": bettor, "total": total})
+
     commission_total = db.session.scalar(
         select(func.coalesce(func.sum(Bet.commission_amount), 0)).where(Bet.status == "won")
     )
@@ -23,6 +42,8 @@ def index():
         fights=fights,
         bettors=bettors,
         commission_total=commission_total,
+        selected_fight_ids=selected_fight_ids,
+        player_totals=player_totals,
     )
 
 
