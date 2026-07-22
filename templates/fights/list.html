@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Fights | Betting Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Fights</h1>
+        <p class="text-body-secondary mb-0">Create and manage scheduled fights.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('fights.create_fight') }}">Create Fight</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Fight</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fight in fights %}
+                <tr>
+                    <td>{{ fight.fighter_a }} <span class="text-body-secondary">vs</span> {{ fight.fighter_b }}</td>
+                    <td>{{ fight.fight_date.strftime('%b %d, %Y') }}</td>
+                    <td><span class="badge text-bg-primary text-uppercase">{{ fight.status }}</span></td>
+                    <td>{{ fight.winner_side or '—' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-body-secondary py-4">No fights have been created yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

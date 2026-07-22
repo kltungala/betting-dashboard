@@ -1,1 +1,4 @@
-"""Database models will be added in the next milestone."""
+from models.bettor import Bettor
+from models.fight import Fight
+
+__all__ = ["Bettor", "Fight"]

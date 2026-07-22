@@ -7,12 +7,20 @@
 </div>
 
 <div class="row g-3">
-    {% for label in ["Total Fights", "Active Fights", "Total Bettors", "Total Bets", "Total Bet Amount", "Outstanding Credits"] %}
+    {% set cards = [
+        ("Total Fights", stats.total_fights),
+        ("Active Fights", stats.active_fights),
+        ("Total Bettors", stats.total_bettors),
+        ("Total Bets", 0),
+        ("Total Bet Amount", "₱0.00"),
+        ("Outstanding Credits", "₱0.00")
+    ] %}
+    {% for label, value in cards %}
     <div class="col-12 col-sm-6 col-xl-4">
         <section class="card stat-card h-100 shadow-sm">
             <div class="card-body">
                 <p class="text-body-secondary mb-2">{{ label }}</p>
-                <p class="display-6 mb-0">0</p>
+                <p class="display-6 mb-0">{{ value }}</p>
             </div>
         </section>
     </div>

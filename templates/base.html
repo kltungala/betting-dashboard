@@ -15,8 +15,8 @@
             </a>
             <nav class="nav flex-column gap-1">
                 <a class="nav-link active" href="{{ url_for('dashboard') }}">Dashboard</a>
-                <span class="nav-link disabled">Fights</span>
-                <span class="nav-link disabled">Bettors</span>
+                <a class="nav-link" href="{{ url_for('fights.list_fights') }}">Fights</a>
+                <a class="nav-link" href="{{ url_for('bettors.list_bettors') }}">Bettors</a>
                 <span class="nav-link disabled">Bets</span>
                 <span class="nav-link disabled">Payments</span>
                 <span class="nav-link disabled">Ledger</span>
@@ -25,6 +25,14 @@
         </aside>
 
         <main class="flex-grow-1 p-3 p-md-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endwith %}
             {% block content %}{% endblock %}
         </main>
     </div>

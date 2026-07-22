@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Create Fight | Betting Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h2 mb-1">Create Fight</h1>
+    <p class="text-body-secondary mb-0">Add the fighters and scheduled date.</p>
+</div>
+
+<form method="post" class="card shadow-sm border-0 p-3 p-md-4 form-card">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label" for="fighter_a">Fighter A</label>
+            <input class="form-control" id="fighter_a" name="fighter_a" value="{{ request.form.get('fighter_a', '') }}" required maxlength="120">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="fighter_b">Fighter B</label>
+            <input class="form-control" id="fighter_b" name="fighter_b" value="{{ request.form.get('fighter_b', '') }}" required maxlength="120">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="fight_date">Fight Date</label>
+            <input class="form-control" id="fight_date" name="fight_date" type="date" value="{{ request.form.get('fight_date', today) }}" required>
+        </div>
+    </div>
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary" type="submit">Create Fight</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('fights.list_fights') }}">Cancel</a>
+    </div>
+</form>
+{% endblock %}
