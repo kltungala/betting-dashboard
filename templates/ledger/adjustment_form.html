@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Ledger Adjustment | Betting Dashboard{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="h2 mb-1">Ledger Adjustment</h1><p class="text-body-secondary mb-0">Use a positive amount to increase a balance and a negative amount to reduce it.</p></div>
+<form method="post" class="card border-0 shadow-sm p-3 p-md-4 form-card"><div class="row g-3"><div class="col-md-6"><label class="form-label" for="bettor_id">Bettor</label><select class="form-select" id="bettor_id" name="bettor_id" required><option value="">Choose a bettor</option>{% for bettor in bettors %}<option value="{{ bettor.id }}">{{ bettor.name }}</option>{% endfor %}</select></div><div class="col-md-6"><label class="form-label" for="amount">Amount (₱)</label><input class="form-control" id="amount" name="amount" type="number" step="0.01" required></div><div class="col-12"><label class="form-label" for="description">Description</label><input class="form-control" id="description" name="description" required maxlength="255"></div></div><div class="d-flex gap-2 mt-4"><button class="btn btn-primary">Save Adjustment</button><a class="btn btn-outline-secondary" href="{{ url_for('ledger.list_ledger') }}">Cancel</a></div></form>
+{% endblock %}

@@ -15,6 +15,10 @@ class Bet(db.Model):
     payment_type = db.Column(db.String(10), nullable=False)
     notes = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), nullable=False, default="active")
+    gross_winnings = db.Column(db.Numeric(12, 2), nullable=True)
+    commission_amount = db.Column(db.Numeric(12, 2), nullable=True)
+    net_profit = db.Column(db.Numeric(12, 2), nullable=True)
+    total_returned = db.Column(db.Numeric(12, 2), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
 
     fight = db.relationship("Fight", backref=db.backref("bets", lazy=True))

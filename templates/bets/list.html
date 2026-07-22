@@ -8,12 +8,12 @@
         <h1 class="h2 mb-1">Bets</h1>
         <p class="text-body-secondary mb-0">All bets remain editable until their fight closes.</p>
     </div>
-    <a class="btn btn-primary" href="{{ url_for('bets.create_bet') }}">Create Bet</a>
+    <div class="d-flex gap-2"><input class="form-control" data-table-search="#bets-table" placeholder="Search bets"><a class="btn btn-primary" href="{{ url_for('bets.create_bet') }}">Create Bet</a></div>
 </div>
 
 <div class="card shadow-sm border-0">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0" id="bets-table">
             <thead>
                 <tr>
                     <th>Fight</th>
@@ -22,6 +22,7 @@
                     <th>Amount</th>
                     <th>Commission</th>
                     <th>Payment</th>
+                    <th>Result</th>
                     <th></th>
                 </tr>
             </thead>
@@ -34,15 +35,19 @@
                     <td>₱{{ '{:,.2f}'.format(bet.amount) }}</td>
                     <td>{{ bet.commission_percent }}%</td>
                     <td class="text-capitalize">{{ bet.payment_type }}</td>
+                    <td>{% if bet.net_profit is not none %}<span class="{{ 'text-success' if bet.net_profit >= 0 else 'text-danger' }}">{{ '+' if bet.net_profit > 0 else '' }}₱{{ '{:,.2f}'.format(bet.net_profit) }}</span>{% else %}—{% endif %}</td>
                     <td class="text-end">
                         {% if bet.fight.status == 'open' %}
                         <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('bets.edit_bet', bet_id=bet.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('bets.delete_bet', bet_id=bet.id) }}" class="d-inline" onsubmit="return confirm('Delete this bet?')">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="7" class="text-center text-body-secondary py-4">No bets have been created yet.</td>
+                    <td colspan="8" class="text-center text-body-secondary py-4">No bets have been created yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>

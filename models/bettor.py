@@ -14,3 +14,7 @@ class Bettor(db.Model):
 
     def __repr__(self):
         return f"<Bettor {self.name}>"
+
+    @property
+    def balance(self):
+        return sum((entry.amount for entry in self.ledger_entries), 0)

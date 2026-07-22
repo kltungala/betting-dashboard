@@ -8,31 +8,49 @@
         <h1 class="h2 mb-1">Fights</h1>
         <p class="text-body-secondary mb-0">Create and manage scheduled fights.</p>
     </div>
-    <a class="btn btn-primary" href="{{ url_for('fights.create_fight') }}">Create Fight</a>
+    <div class="d-flex gap-2"><input class="form-control" data-table-search="#fights-table" placeholder="Search fights"><a class="btn btn-primary" href="{{ url_for('fights.create_fight') }}">Create Fight</a></div>
 </div>
 
 <div class="card shadow-sm border-0">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0" id="fights-table">
             <thead>
                 <tr>
                     <th>Fight</th>
                     <th>Date</th>
+                    <th>Balance</th>
                     <th>Status</th>
                     <th>Winner</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for fight in fights %}
                 <tr>
-                    <td>{{ fight.fighter_a }} <span class="text-body-secondary">vs</span> {{ fight.fighter_b }}</td>
+                    <td><a href="{{ url_for('fights.detail_fight', fight_id=fight.id) }}">{{ fight.fighter_a }} <span class="text-body-secondary">vs</span> {{ fight.fighter_b }}</a></td>
                     <td>{{ fight.fight_date.strftime('%b %d, %Y') }}</td>
+                    <td>
+                        <span class="small d-block">A ₱{{ '{:,.2f}'.format(fight.side_a_total) }} / B ₱{{ '{:,.2f}'.format(fight.side_b_total) }}</span>
+                        {% if fight.is_balanced %}
+                        <span class="badge text-bg-success">BALANCED ✓</span>
+                        {% else %}
+                        <span class="badge text-bg-warning">₱{{ '{:,.2f}'.format(fight.balance_difference) }} DIFFERENCE</span>
+                        {% endif %}
+                    </td>
                     <td><span class="badge text-bg-primary text-uppercase">{{ fight.status }}</span></td>
                     <td>{{ fight.winner_side or '—' }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('fights.detail_fight', fight_id=fight.id) }}">View</a>
+                        {% if fight.status == 'open' and not fight.bets %}
+                        <form method="post" action="{{ url_for('fights.delete_fight', fight_id=fight.id) }}" class="d-inline" onsubmit="return confirm('Delete this fight permanently?')">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="4" class="text-center text-body-secondary py-4">No fights have been created yet.</td>
+                    <td colspan="6" class="text-center text-body-secondary py-4">No fights have been created yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>

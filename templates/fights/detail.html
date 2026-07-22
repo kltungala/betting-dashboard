@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Fight Details | Betting Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">{{ fight.fighter_a }} vs {{ fight.fighter_b }}</h1>
+        <p class="text-body-secondary mb-0">{{ fight.fight_date.strftime('%B %d, %Y') }} · <span class="text-uppercase">{{ fight.status }}</span></p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if fight.status == 'open' %}
+        <a class="btn btn-outline-secondary" href="{{ url_for('fights.edit_fight', fight_id=fight.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('fights.close_fight', fight_id=fight.id) }}" onsubmit="return confirm('Close this fight? Bets will no longer be editable.')">
+            <button class="btn btn-warning" type="submit">Close Fight</button>
+        </form>
+        {% if not fight.bets %}
+        <form method="post" action="{{ url_for('fights.delete_fight', fight_id=fight.id) }}" onsubmit="return confirm('Delete this fight permanently?')">
+            <button class="btn btn-outline-danger" type="submit">Delete</button>
+        </form>
+        {% endif %}
+        {% endif %}
+        <a class="btn btn-outline-secondary" href="{{ url_for('fights.list_fights') }}">Back</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><small>Side A Total</small><div class="h3 mb-0">₱{{ '{:,.2f}'.format(fight.side_a_total) }}</div></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><small>Side B Total</small><div class="h3 mb-0">₱{{ '{:,.2f}'.format(fight.side_b_total) }}</div></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><small>Balance</small><div class="h3 mb-0">{% if fight.is_balanced %}<span class="text-success">BALANCED ✓</span>{% else %}₱{{ '{:,.2f}'.format(fight.balance_difference) }}{% endif %}</div></div></div></div>
+</div>
+
+{% if fight.status != 'settled' %}
+<form class="card border-0 shadow-sm p-3 mb-4" method="post" action="{{ url_for('fights.declare_winner', fight_id=fight.id) }}" onsubmit="return confirm('Declare the winner and permanently calculate payouts?')">
+    <div class="row align-items-end g-2"><div class="col-md-5"><label class="form-label" for="winner_side">Declare Winner</label><select class="form-select" id="winner_side" name="winner_side" required><option value="">Choose winner</option><option value="A">Fighter A — {{ fight.fighter_a }}</option><option value="B">Fighter B — {{ fight.fighter_b }}</option></select></div><div class="col-md-3"><button class="btn btn-danger" type="submit">Settle Fight</button></div></div>
+</form>
+{% else %}
+<div class="alert alert-success">Winner: Fighter {{ fight.winner_side }}. Payouts and commissions are settled.</div>
+{% endif %}
+
+<div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Bettor</th><th>Side</th><th>Stake</th><th>Commission</th><th>Status</th><th>Net Result</th></tr></thead><tbody>
+{% for bet in bets %}<tr><td>{{ bet.bettor.name }}</td><td>{{ bet.fighter_side }}</td><td>₱{{ '{:,.2f}'.format(bet.amount) }}</td><td>{{ bet.commission_percent }}%</td><td class="text-capitalize">{{ bet.status }}</td><td>{% if bet.net_profit is not none %}<span class="{{ 'text-success' if bet.net_profit >= 0 else 'text-danger' }}">{{ '+' if bet.net_profit > 0 else '' }}₱{{ '{:,.2f}'.format(bet.net_profit) }}</span>{% else %}—{% endif %}</td></tr>{% else %}<tr><td colspan="6" class="text-center text-body-secondary py-4">No bets recorded.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

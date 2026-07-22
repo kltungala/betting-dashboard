@@ -1,10 +1,11 @@
 from decimal import Decimal, InvalidOperation
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from extensions import db
-from models import Bet, Bettor, Fight
+from models import Bet, Bettor, Fight, LedgerEntry
+from services.ledger import record_bet_entries
 
 
 bets_bp = Blueprint("bets", __name__, url_prefix="/bets")
@@ -25,6 +26,8 @@ def create_bet():
         bet = Bet()
         if _populate_bet(bet):
             db.session.add(bet)
+            db.session.flush()
+            record_bet_entries(bet)
             db.session.commit()
             flash("Bet created.", "success")
             return redirect(url_for("bets.list_bets"))
@@ -40,11 +43,25 @@ def edit_bet(bet_id):
         return redirect(url_for("bets.list_bets"))
 
     if request.method == "POST" and _populate_bet(bet):
+        record_bet_entries(bet)
         db.session.commit()
         flash("Bet updated.", "success")
         return redirect(url_for("bets.list_bets"))
 
     return render_template("bets/form.html", bet=bet, fights=_open_fights(), bettors=_bettors())
+
+
+@bets_bp.post("/<int:bet_id>/delete")
+def delete_bet(bet_id):
+    bet = db.get_or_404(Bet, bet_id)
+    if bet.fight.status != "open":
+        flash("Only bets on open fights can be deleted.", "warning")
+    else:
+        db.session.execute(delete(LedgerEntry).where(LedgerEntry.bet_id == bet.id))
+        db.session.delete(bet)
+        db.session.commit()
+        flash("Bet deleted.", "success")
+    return redirect(url_for("bets.list_bets"))
 
 
 def _open_fights():

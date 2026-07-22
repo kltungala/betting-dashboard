@@ -7,6 +7,10 @@ body {
     background: #f8f9fa;
 }
 
+[data-bs-theme="dark"] body {
+    background: #111827;
+}
+
 .sidebar {
     width: 240px;
     background: var(--sidebar-background);
@@ -34,6 +38,11 @@ body {
 
 .stat-card {
     border: 0;
+}
+
+.table a {
+    color: inherit;
+    font-weight: 600;
 }
 
 @media (max-width: 767.98px) {

@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from extensions import db
 
@@ -18,3 +19,25 @@ class Fight(db.Model):
 
     def __repr__(self):
         return f"<Fight {self.fighter_a} vs {self.fighter_b}>"
+
+    @property
+    def side_a_total(self):
+        return sum(
+            (bet.amount for bet in self.bets if bet.fighter_side == "A"),
+            Decimal("0.00"),
+        )
+
+    @property
+    def side_b_total(self):
+        return sum(
+            (bet.amount for bet in self.bets if bet.fighter_side == "B"),
+            Decimal("0.00"),
+        )
+
+    @property
+    def balance_difference(self):
+        return abs(self.side_a_total - self.side_b_total)
+
+    @property
+    def is_balanced(self):
+        return self.side_a_total == self.side_b_total

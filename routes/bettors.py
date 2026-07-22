@@ -39,6 +39,29 @@ def edit_bettor(bettor_id):
     return render_template("bettors/form.html", bettor=bettor)
 
 
+@bettors_bp.get("/<int:bettor_id>")
+def detail_bettor(bettor_id):
+    bettor = db.get_or_404(Bettor, bettor_id)
+    wins = sum(1 for bet in bettor.bets if bet.status == "won")
+    losses = sum(1 for bet in bettor.bets if bet.status == "lost")
+    entries = sorted(bettor.ledger_entries, key=lambda entry: (entry.created_at, entry.id), reverse=True)
+    return render_template(
+        "bettors/detail.html", bettor=bettor, wins=wins, losses=losses, entries=entries
+    )
+
+
+@bettors_bp.post("/<int:bettor_id>/delete")
+def delete_bettor(bettor_id):
+    bettor = db.get_or_404(Bettor, bettor_id)
+    if bettor.bets or bettor.payments or bettor.ledger_entries:
+        flash("A bettor with bet, payment, or ledger history cannot be deleted.", "warning")
+        return redirect(url_for("bettors.detail_bettor", bettor_id=bettor.id))
+    db.session.delete(bettor)
+    db.session.commit()
+    flash("Bettor deleted.", "success")
+    return redirect(url_for("bettors.list_bettors"))
+
+
 def _populate_bettor(bettor):
     name = request.form.get("name", "").strip()
     phone = request.form.get("phone", "").strip()
